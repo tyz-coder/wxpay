@@ -20,5 +20,5 @@ func TestMapToXml(t *testing.T) {
 }
 
 func TestNonceStr(t *testing.T) {
-	t.Log(nonceStr())
+	t.Log(NonceStr())
 }

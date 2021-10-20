@@ -53,7 +53,7 @@ func (c *Client) SetAccount(account *Account) {
 func (c *Client) fillRequestData(params Params) Params {
 	params["appid"] = c.account.appID
 	params["mch_id"] = c.account.mchID
-	params["nonce_str"] = nonceStr()
+	params["nonce_str"] = NonceStr()
 	params["sign_type"] = c.signType
 	params["sign"] = c.Sign(params)
 	return params
@@ -64,6 +64,23 @@ func (c *Client) postWithoutCert(url string, params Params) (string, error) {
 	h := &http.Client{}
 	p := c.fillRequestData(params)
 	response, err := h.Post(url, bodyType, strings.NewReader(MapToXml(p)))
+	if err != nil {
+		return "", err
+	}
+	defer response.Body.Close()
+	res, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(res), nil
+}
+
+// https no cert post not fill data
+func (c *Client) postWithoutCertNotFillData(url string, params Params) (string, error) {
+	h := &http.Client{}
+	// 由于微信付款文档的不一致，新增不自动加载参数的方式请求
+	//p := c.fillRequestData(params)
+	response, err := h.Post(url, bodyType, strings.NewReader(MapToXml(params)))
 	if err != nil {
 		return "", err
 	}
@@ -94,6 +111,37 @@ func (c *Client) postWithCert(url string, params Params) (string, error) {
 	h := &http.Client{Transport: transport}
 	p := c.fillRequestData(params)
 	response, err := h.Post(url, bodyType, strings.NewReader(MapToXml(p)))
+	if err != nil {
+		return "", err
+	}
+	defer response.Body.Close()
+	res, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(res), nil
+}
+
+// https need cert post not fill data
+func (c *Client) postWithCertNotFillData(url string, params Params) (string, error) {
+	if c.account.certData == nil {
+		return "", errors.New("证书数据为空")
+	}
+
+	// 将pkcs12证书转成pem
+	cert := pkcs12ToPem(c.account.certData, c.account.mchID)
+
+	config := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+	}
+	transport := &http.Transport{
+		TLSClientConfig:    config,
+		DisableCompression: true,
+	}
+	h := &http.Client{Transport: transport}
+	// 由于微信付款文档的不一致，新增不自动加载参数的方式请求
+	//p := c.fillRequestData(params)
+	response, err := h.Post(url, bodyType, strings.NewReader(MapToXml(params)))
 	if err != nil {
 		return "", err
 	}
@@ -395,7 +443,7 @@ func (c *Client) TransfersToUserDibByOpenid(params Params) (Params, error) {
 	} else {
 		url = TransfersToUserDibByOpenidUrl
 	}
-	xmlStr, err := c.postWithCert(url, params)
+	xmlStr, err := c.postWithCertNotFillData(url, params)
 	if err != nil {
 		return nil, err
 	}
@@ -410,7 +458,7 @@ func (c *Client) TransfersGetTransferInfo(params Params) (Params, error) {
 	} else {
 		url = TransfersGetTransferInfoUrl
 	}
-	xmlStr, err := c.postWithCert(url, params)
+	xmlStr, err := c.postWithCertNotFillData(url, params)
 	if err != nil {
 		return nil, err
 	}
