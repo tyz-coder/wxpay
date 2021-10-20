@@ -389,7 +389,12 @@ func (c *Client) AuthCodeToOpenid(params Params) (Params, error) {
 
 // 付款到零钱 - https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=14_2
 func (c *Client) TransfersToUserDibByOpenid(params Params) (Params, error) {
-	url := TransfersToUserDibByOpenidUrl
+	var url string
+	if c.account.isSandbox {
+		url = SandboxTransfersToUserDibByOpenidUrl
+	} else {
+		url = TransfersToUserDibByOpenidUrl
+	}
 	xmlStr, err := c.postWithCert(url, params)
 	if err != nil {
 		return nil, err
@@ -399,7 +404,12 @@ func (c *Client) TransfersToUserDibByOpenid(params Params) (Params, error) {
 
 // 查询付款 - https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=14_3
 func (c *Client) TransfersGetTransferInfo(params Params) (Params, error) {
-	url := TransfersGetTransferInfoUrl
+	var url string
+	if c.account.isSandbox {
+		url = SandboxTransfersGetTransferInfoUrl
+	} else {
+		url = TransfersGetTransferInfoUrl
+	}
 	xmlStr, err := c.postWithCert(url, params)
 	if err != nil {
 		return nil, err
