@@ -2,6 +2,7 @@
 
 ![Powered by zch](https://img.shields.io/badge/Powered%20by-zch-blue.svg?style=flat-square) ![Language](https://img.shields.io/badge/language-Go-orange.svg) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE.md)
 
+[fork by https://github.com/objcoding/wxpay](https://github.com/objcoding/wxpay)
 
 wxpay 提供了以下的方法：
 
@@ -29,14 +30,14 @@ wxpay 提供了以下的方法：
 ## 安装
 
 ```bash
-$ go get github.com/objcoding/wxpay
+$ go get github.com/tyz-coder/wxpay
 
 ```
 
 ## go modules
 ```cgo
 // go.mod
-require github.com/objcoding/wxpay v1.0.5
+require github.com/tyz-coder/wxpay v1.0.7
 
 ```
 
