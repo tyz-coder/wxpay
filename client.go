@@ -231,7 +231,8 @@ func (c *Client) processResponseXml(xmlStr string) (Params, error) {
 		if c.ValidSign(params) {
 			return params, nil
 		} else {
-			return nil, errors.New("invalid sign value in XML")
+			// 就算错误也需要返回出去，让业务逻辑自行进行判断
+			return params, errors.New("invalid sign value in XML")
 		}
 	} else {
 		return nil, errors.New("return_code value is invalid in XML")

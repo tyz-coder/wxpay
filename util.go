@@ -13,26 +13,21 @@ import (
 )
 
 func XmlToMap(xmlStr string) Params {
-
 	params := make(Params)
 	decoder := xml.NewDecoder(strings.NewReader(xmlStr))
+	var start *xml.StartElement
 
-	var (
-		key   string
-		value string
-	)
-
-	for t, err := decoder.Token(); err == nil; t, err = decoder.Token() {
-		switch token := t.(type) {
-		case xml.StartElement: // 开始标签
-			key = token.Name.Local
-		case xml.CharData: // 标签内容
-			content := string([]byte(token))
-			value = content
+	for {
+		tok, err := decoder.Token()
+		if err != nil {
+			break
 		}
-		if key != "xml" {
-			if value != "\n" {
-				params.SetString(key, value)
+		switch t := tok.(type) {
+		case xml.StartElement:
+			start = &t
+		case xml.CharData:
+			if t = bytes.TrimSpace(t); len(t) > 0 && start != nil {
+				params.SetString(start.Name.Local, string(t))
 			}
 		}
 	}

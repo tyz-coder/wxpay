@@ -110,7 +110,7 @@ p, _ := client.RefundQuery(params)
 
 ```cgo
 // 向用户零钱付款
-payAccount := NewAccount("xxxxx", "xxx", "xxxxx", true)
+payAccount := NewAccount("xxxxx", "xxx", "xxxxx", false)
 // 设置支付证书
 payAccount.SetCertData("")
 // 加载支付终端
@@ -136,7 +136,7 @@ fmt.Println(p, err)
 
 ```cgo
 // 查询转账记录
-payAccount := NewAccount("xxxxx", "xxx", "xxxxx", true)
+payAccount := NewAccount("xxxxx", "xxx", "xxxxx", false)
 // 设置支付证书
 payAccount.SetCertData("")
 // 加载支付终端
@@ -144,7 +144,7 @@ client := NewClient(payAccount)
 // 加载请求参数
 params := make(Params)
 params.SetString("appid", payAccount.appID)   // 申请商户号的appid或商户号绑定的appid
-params.SetString("mchid", payAccount.mchID)   // 微信支付分配的商户号
+params.SetString("mch_id", payAccount.mchID)  // 微信支付分配的商户号
 params.SetString("nonce_str", NonceStr())     // 随机字符串，不长于32位
 params.SetString("partner_trade_no", "xxx")   // 商户订单号 商户订单号，需保持唯一性 (只能是字母或者数字，不能包含有其它字符)
 params.SetString("sign", client.Sign(params)) // 签名 - 签名算法:https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=4_3
