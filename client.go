@@ -239,6 +239,24 @@ func (c *Client) processResponseXml(xmlStr string) (Params, error) {
 	}
 }
 
+// 处理 HTTPS API返回数据，转换成Map对象。return_code为SUCCESS时，不进行验证签名。
+func (c *Client) processResponseXmlNotSign(xmlStr string) (Params, error) {
+	var returnCode string
+	params := XmlToMap(xmlStr)
+	if params.ContainsKey("return_code") {
+		returnCode = params.GetString("return_code")
+	} else {
+		return nil, errors.New("no return_code in XML")
+	}
+	if returnCode == Fail {
+		return params, errors.New("return_code is FAIL")
+	} else if returnCode == Success {
+		return params, nil
+	} else {
+		return nil, errors.New("return_code value is invalid in XML")
+	}
+}
+
 // 统一下单
 func (c *Client) UnifiedOrder(params Params) (Params, error) {
 	var url string
@@ -448,7 +466,7 @@ func (c *Client) TransfersToUserDibByOpenid(params Params) (Params, error) {
 	if err != nil {
 		return nil, err
 	}
-	return c.processResponseXml(xmlStr)
+	return c.processResponseXmlNotSign(xmlStr)
 }
 
 // 查询付款 - https://pay.weixin.qq.com/wiki/doc/api/tools/mch_pay.php?chapter=14_3
@@ -463,5 +481,5 @@ func (c *Client) TransfersGetTransferInfo(params Params) (Params, error) {
 	if err != nil {
 		return nil, err
 	}
-	return c.processResponseXml(xmlStr)
+	return c.processResponseXmlNotSign(xmlStr)
 }
